@@ -1,0 +1,2 @@
+* * * * *	root		/etc/zabbix/scripts/zabbix-varnish-cache.py -i 'reformacio' send -c /etc/zabbix/zabbix_agentd.conf -z zabbix.teratorium.com -s srv2.nuus.hu > /dev/null 2>&1
+* * * * *	root		/etc/zabbix/scripts/zbxApacheStatusCheck > /dev/null 2>&1
