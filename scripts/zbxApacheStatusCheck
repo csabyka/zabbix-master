@@ -99,7 +99,7 @@ Options:
 HOST=###CHANGEME###
 PORT=80
 PROTO=http
-ZABBIXSERVER=###CHANGEME###
+ZABBIXSERVER=zabbix.teratorium.com
 SENDER=/usr/bin/zabbix_sender
 DEBUG=0
 TEST=0
