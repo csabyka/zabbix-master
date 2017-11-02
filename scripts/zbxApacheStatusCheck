@@ -96,7 +96,7 @@ Options:
 }
 
 # Define some default values
-HOST=###CHANGEME###
+HOST=localhost
 PORT=80
 PROTO=http
 ZABBIXSERVER=zabbix.teratorium.com
@@ -116,6 +116,7 @@ Load1
 Load5
 Load15
 Uptime
+KeepAlive
 ReqPerSec
 BytesPerSec
 BytesPerReq
