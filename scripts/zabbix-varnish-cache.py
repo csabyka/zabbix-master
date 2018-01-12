@@ -3,7 +3,7 @@
 
 '''
 :url: https://github.com/allenta/zabbix-template-for-varnish-cache
-:copyright: (c) 2015-2016 by Allenta Consulting S.L. <info@allenta.com>.
+:copyright: (c) 2015-2018 by Allenta Consulting S.L. <info@allenta.com>.
 :license: BSD, see LICENSE.txt for more details.
 '''
 
@@ -98,6 +98,7 @@ REWRITES = [
     (re.compile(r'^((?:MSE|SMA|SMF)\..+)$'), r'STG.\1'),
     (re.compile(r'^(STG\.(?:MSE|SMA|SMF)\.[^\.]+\.c_fail)ed$'), r'\1'),
     (re.compile(r'^VBE\.(?:[^\.\(]+)((?:\.[^\.]*(?:\([^\)]*\))?)+\.[^\.]+)$'), r'VBE\1'),
+    (re.compile(r'^(VBE\.goto)\.[0-9a-f]+\.(.+)$'), r'\1.\2'),
 ]
 
 SUBJECTS = {
