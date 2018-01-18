@@ -25,7 +25,9 @@ ITEMS = re.compile(
     r'MAIN\.client_req_417|'
     r'MAIN\.client_req|'
     r'MAIN\.cache_hit|'
+    r'MAIN\.cache_hit_grace|'
     r'MAIN\.cache_hitpass|'
+    r'MAIN\.cache_hitmiss|'
     r'MAIN\.cache_miss|'
     r'MAIN\.backend_conn|'
     r'MAIN\.backend_unhealthy|'
@@ -56,6 +58,7 @@ ITEMS = re.compile(
     r'MAIN\.busy_killed|'
     r'MAIN\.sess_queued|'
     r'MAIN\.sess_dropped|'
+    r'MAIN\.req_dropped|'
     r'MAIN\.n_object|'
     r'MAIN\.n_objectcore|'
     r'MAIN\.n_objecthead|'
@@ -64,9 +67,9 @@ ITEMS = re.compile(
     r'MAIN\.n_lru_nuked|'
     r'MAIN\.bans_obj_killed|'
     r'MAIN\.bans_lurker_obj_killed|'
+    r'MAIN\.bans_lurker_obj_killed_cutoff|'
     r'MAIN\.losthdr|'
     r'MAIN\.s_sess|'
-    r'MAIN\.s_req|'
     r'MAIN\.s_pipe|'
     r'MAIN\.s_pass|'
     r'MAIN\.s_fetch|'
@@ -81,7 +84,9 @@ ITEMS = re.compile(
     r'MAIN\.sess_closed|'
     r'MAIN\.sess_closed_err|'
     r'MAIN\.sess_readahead|'
+    r'MAIN\.sc_vcl_failure|'
     r'MAIN\.backend_req|'
+    r'MAIN\.vcl_fail|'
     r'MAIN\.bans|'
     r'MAIN\.n_purges|'
     r'MAIN\.n_obj_purged|'
@@ -89,6 +94,7 @@ ITEMS = re.compile(
     r'MAIN\.esi_warnings|'
     r'MAIN\.n_gzip|'
     r'MAIN\.n_gunzip|'
+    r'MAIN\.n_test_gunzip|'
     r'MGT\.uptime|'
     r'(?:MSE|SMA|SMF)\..+\.(?:c_fail|c_failed|g_bytes|g_space|g_sparenode)|'
     r'VBE\..+\.(?:healthy|happy|bereq_hdrbytes|bereq_bodybytes|beresp_hdrbytes|beresp_bodybytes|pipe_hdrbytes|pipe_out|pipe_in|conn|req)'
@@ -238,8 +244,6 @@ def stats(name):
                        any(name.startswith('VBE.' + backend + '.') for backend in backends.keys()):
                         key = rewriter.rewrite(name)
                         value = {
-                            'type': item.get('type'),
-                            'ident': item.get('ident'),
                             'flag': item.get('flag'),
                             'description': item.get('description'),
                             'value': item['value'],
@@ -255,8 +259,6 @@ def stats(name):
             for backend, healthy in backends.items():
                 key = rewriter.rewrite('VBE.' + backend + '.healthy')
                 result[key] = {
-                    'type': 'VBE',
-                    'ident': backend,
                     'flag': 'g',
                     'description': '',
                     'value': int(healthy),
