@@ -107,22 +107,51 @@ ZABBIXPORT=10051
 ZABBIXSOURCE=localhost
 TIMEOUT=30
 DEFAULTCONFIG="ServerVersion
-Total Accesses
-Total kBytes
-KeepAlive
-CPULoad
-CPUSystem
-CPUUser
+ServerMPM
+Server Built
+CurrentTime
+RestartTime
+ParentServerConfigGeneration
+ParentServerMPMGeneration
+ServerUptimeSeconds
+ServerUptime
 Load1
 Load5
 Load15
+Total Accesses
+Total kBytes
+CPUUser
+CPUSystem
+CPUChildrenUser
+CPUChildrenSystem
+CPULoad
 Uptime
 ReqPerSec
 BytesPerSec
 BytesPerReq
 BusyWorkers
 IdleWorkers
-Scoreboard"
+ConnsTotal
+ConnsAsyncWriting
+ConnsAsyncKeepAlive
+ConnsAsyncClosing
+Scoreboard
+TLSSessionCacheStatus
+CacheType
+CacheSharedMemory
+CacheCurrentEntries
+CacheSubcaches
+CacheIndexesPerSubcaches
+CacheIndexUsage
+CacheUsage
+CacheStoreCount
+CacheReplaceCount
+CacheExpireCount
+CacheDiscardCount
+CacheRetrieveHitCount
+CacheRetrieveMissCount
+CacheRemoveHitCount
+CacheRemoveMissCount"
 
 # Use getopt(1) program to parse command line options
 SHORT=vhl:o:p:r:z:u:a:s:q:c:k:dt
