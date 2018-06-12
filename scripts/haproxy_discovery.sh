@@ -11,7 +11,7 @@
 #  global
 #  stats socket /run/haproxy/info.sock  mode 666 level user
 
-HAPROXY_SOCK="/var/run/haproxy/info.sock"
+HAPROXY_SOCK="/run/haproxy/admin.sock"
 [ -n "$1" ] && echo $1 | grep -q ^/ && HAPROXY_SOCK="$(echo $1 | tr -d '\040\011\012\015')"
 
 if [[ "$1" =~ (25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):[0-9]{1,5} ]];
@@ -54,3 +54,4 @@ for frontend in $(get_stats | grep "$END" | cut -d, -f1 | uniq); do
     felist="$felist,\n"'\t\t{\n\t\t\t"{#'${END}'_NAME}":"'$frontend'"}'
 done
 echo -e '{\n\t"data":[\n'${felist#,}']}'
+
