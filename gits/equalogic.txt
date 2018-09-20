@@ -1,0 +1,114 @@
+Description
+-----------
+This Zabbix template provides a check of Dell Equallogic systems.
+The template assumes 24 disks are present in the system and has
+been tested on a several PS6110 systems: PS6110XS, P6110XV and
+PS6110E.
+
+Contents
+--------
+Equallogic SAN Group.xml - Zabbix template
+discover_eqlvolumes.pl - Perl helper script to generate a list
+of SNMP sub-ids, one for each volume.
+
+Author
+------
+The original template was created by Ivo van Geel for Radboudumc in Nijmegen.
+This template was created by Stefan Krüger.
+
+License
+-------
+The template and the helper script are released under the GNU GPLv3
+license. See gpl.txt for more information on the GNU GPLv3 license.
+You must include this file when distributing this Zabbix template.
+
+Installation
+------------
+Please change the SNMP Community string in the Perl helper script,
+if it is not set to "public" in your Equallogic systems.
+
+Import the XML file into Zabbix (under Configuration -> Templates).
+
+The SNMP Community string for the template can be set in the template
+configuration itself, under Macros. By default this is set to: "public".
+
+Copy the Perl helper script to the ExternalScripts directory
+(see /etc/zabbix/zabbix_server.conf) and make sure it is executable
+by running: chmod a+rx /path/to/discover_eqlvolumes.pl
+
+Run the following command on the console:
+snmpwalk -v2c -c <COMMUNITY-STRING> <EQL-IP> .1.3.6.1.4.1.12740.2.1.1.1.9.1
+for example:
+snmpwalk -v2c -c public 123.456.798.1 .1.3.6.1.4.1.12740.2.1.1.1.9.1
+you will get something like that:
+SNMPv2-SMI::enterprises.12740.2.1.1.1.9.1.1234567890 = STRING: "Foo"
+now create a macro on the Host
+{EQL_ID} -> 1234567890
+{EQL_NAME} -> foo
+
+we need that because zabbix has no nested LLD at the moment, please vote for it https://support.zabbix.com/browse/ZBXNEXT-1527
+
+after this your must create some Value Mappings:
+
+eqlControllerBatteryStatus:
+1=>ok
+2=>failed
+3=>good-battery-is-charging
+4=>low-voltage-status
+5=>low-voltage-is-charging
+6=>missing-battery
+
+eqlDiskStatus:
+1=>on-line
+2=>spare
+3=>failed
+4=>off-line
+5=>alt-sig
+6=>too-small
+7=>history-of-failures
+8=>unsupported-version
+9=>unhealthy
+10=>replacement
+11=>encrypted
+12=>notApproved
+13=>preempt-failed
+
+eqliscsiVolumeAdminStatus:
+1=>online
+2=>offline
+3=>online-lost-cached-blocks
+4=>online-control
+5=>offline-control
+
+eqlMemberHealthDetailsFanCurrentState:
+0=>unknown
+1=>normal
+2=>warning
+3=>critical
+
+eqlMemberHealthDetailsPowerSupplyCurrentState:
+1=>on-and-operating
+2=>no-ac-power
+3=>failed-or-no-data
+
+eqlMemberHealthDetailsTemperatureCurrentState:
+0=>unknown
+1=>normal
+2=>warning
+3=>critical
+
+eqlMemberHealthStatus:
+0=>Unknown
+1=>Normal
+2=>Warning
+3=>Critical
+
+eqlMemberRaidStatus:
+1=>ok
+2=>degraded
+3=>verifying
+4=>reconstructing
+5=>failed
+6=>catastrophicLoss
+7=>expanding
+8=>mirroring
