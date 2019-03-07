@@ -1,6 +1,0 @@
-UserParameter=proxysql.variables[*],/etc/zabbix/scripts/proxysql2.py get variable $1 2>/dev/null
-UserParameter=proxysql.discovery[*],/etc/zabbix/scripts/proxysql2.py discover $1 2>/dev/null
-UserParameter=proxysql.pools[*],/etc/zabbix/scripts/proxysql2.py get pool $1 $2 $3 2>/dev/null
-UserParameter=proxysql.users[*],/etc/zabbix/scripts/proxysql2.py get user $1 $2 2>/dev/null
-UserParameter=proxysql.clusters[*],/etc/zabbix/scripts/proxysql2.py get cluster $1 2>/dev/null
-UserParameter=proxysql.ping,/etc/zabbix/scripts/proxysql2.py get ping 2>/dev/null
