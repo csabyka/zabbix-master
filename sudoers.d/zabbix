@@ -11,6 +11,7 @@ zabbix ALL=(ALL) NOPASSWD: /usr/sbin/httpd -v
 zabbix ALL=(ALL) NOPASSWD: /usr/sbin/dmidecode
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/stat
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/ss
+zabbix ALL=(ALL) NOPASSWD: /bin/ss
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/telnet
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/redis-cli
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/md5sum
