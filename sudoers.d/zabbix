@@ -28,7 +28,11 @@ zabbix ALL=(postgres:postgres) NOPASSWD: /usr/bin/psql
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/apt-get --assume-yes install --only-upgrade *
 
 Cmnd_Alias MON = /etc/zabbix/scripts/supervisor_check.pl discovery
+Cmnd_Alias MONGLSTR = /etc/zabbix/scripts/gluster-monitoring.pl *
+
+
 zabbix ALL = NOPASSWD: MON
+
 Defaults:zabbix !syslog
 Defaults:zabbix        !requiretty
 
