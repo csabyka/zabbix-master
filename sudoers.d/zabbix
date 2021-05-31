@@ -26,6 +26,7 @@ zabbix ALL=(ALL) NOPASSWD: /usr/sbin/whmapi1
 zabbix ALL=(vps:vps) NOPASSWD: /usr/bin/VBoxManage
 zabbix ALL=(postgres:postgres) NOPASSWD: /usr/bin/psql
 zabbix ALL=(ALL) NOPASSWD: /usr/bin/apt-get --assume-yes install --only-upgrade *
+zabbix ALL=(ALL) NOPASSWD: /etc/zabbix/scripts/gluster-monitoring.pl *
 
 Cmnd_Alias MON = /etc/zabbix/scripts/supervisor_check.pl discovery
 Cmnd_Alias MONGLSTR = /etc/zabbix/scripts/gluster-monitoring.pl *
