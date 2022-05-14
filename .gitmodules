@@ -1,0 +1,3 @@
+[submodule "othr/proxysql-zabbix"]
+	path = othr/proxysql-zabbix
+	url = https://github.com/sysdljr/proxysql-zabbix.git

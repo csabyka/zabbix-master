@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-09-29T10:27:54Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Gluster Storage Template</template>
+            <name>Gluster Storage</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>GlusterFS</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Gluster Storage Active Nodes</name>
+                    <key>gluster_storage_info[&quot;nodes_active&quot;]</key>
+                    <delay>2m</delay>
+                    <applications>
+                        <application>
+                            <name>GlusterFS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Gluster Storage Nodes</name>
+                    <key>gluster_storage_info[&quot;node_count&quot;]</key>
+                    <delay>2m</delay>
+                    <applications>
+                        <application>
+                            <name>GlusterFS</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Gluster Storage Volume Number</name>
+                    <key>gluster_storage_info[&quot;volume_count&quot;]</key>
+                    <delay>2m</delay>
+                    <applications>
+                        <application>
+                            <name>GlusterFS</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Gluster Volume Names Discovery</name>
+                    <key>gluster_volume_name.discovery</key>
+                    <delay>30s</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Gluster Volume % Free Space {#VOLUME_NAME}</name>
+                            <type>CALCULATED</type>
+                            <key>gluster_volume_free_space[{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <params>100*((last(&quot;gluster_volume_info[\&quot;size_total\&quot;,{#VOLUME_NAME}]&quot;)-last(&quot;gluster_volume_info[\&quot;size_used\&quot;,{#VOLUME_NAME}]&quot;))/last(&quot;gluster_volume_info[\&quot;size_total\&quot;,{#VOLUME_NAME}]&quot;))</params>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last(,5m)}&lt;{$GLUSTERFS.SPACE.MIN.WARN}</expression>
+                                    <name>Gluster Volume Free Space is less than {$GLUSTERFS.SPACE.MIN.WARN}</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Gluster Volume state on {#VOLUME_NAME}</name>
+                            <key>gluster_volume_info[&quot;health&quot;,{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{str(up)}=0</expression>
+                                    <name>Gluster Volume state in {#VOLUME_NAME} is down</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Gluster Volume nr_entries {#VOLUME_NAME}</name>
+                            <key>gluster_volume_info[&quot;nr_entries&quot;,{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <units>ents</units>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;&gt;0</expression>
+                                    <name>Gluster nr_entries is above 0</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Gluster Volume Total Size on {#VOLUME_NAME}</name>
+                            <key>gluster_volume_info[&quot;size_total&quot;,{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <units>b</units>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Gluster Volume Used Size on {#VOLUME_NAME}</name>
+                            <key>gluster_volume_info[&quot;size_used&quot;,{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <units>b</units>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Gluster Volume snapshot_count on {#VOLUME_NAME}</name>
+                            <key>gluster_volume_info[&quot;snapshot_count&quot;,{#VOLUME_NAME}]</key>
+                            <delay>30s</delay>
+                            <applications>
+                                <application>
+                                    <name>GlusterFS</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$GLUSTERFS.SPACE.MIN.WARN}</macro>
+                    <value>10</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Gluster Storage Template:gluster_storage_info[&quot;nodes_active&quot;].last()} &lt; {Gluster Storage Template:gluster_storage_info[&quot;node_count&quot;].last()}</expression>
+            <name>Gluster storage nodes is not online</name>
+            <priority>INFO</priority>
+        </trigger>
+    </triggers>
+</zabbix_export>
