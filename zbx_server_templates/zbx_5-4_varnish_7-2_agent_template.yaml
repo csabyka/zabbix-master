@@ -1,0 +1,1419 @@
+zabbix_export:
+  version: '5.4'
+  date: '2022-12-14T10:02:55Z'
+  groups:
+    -
+      uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    -
+      uuid: 8a0ae7759b4d4cda8da682f02ab95095
+      template: 'App Varnish by Zabbix agent'
+      name: 'App Varnish by Zabbix agent'
+      description: |
+        ## Description
+        
+        Simple template for the Varnish 7.2 cache using results from the varnishstat command. Ensure that "EnableRemoteCommands=1" or "AllowKey=system.run[*]" is set in the host's agent config file.
+        
+        ## Overview
+        
+        Simple template for the Varnish 7.2 cache using results from the varnishstat command. Ensure that "EnableRemoteCommands=1" or "AllowKey=system.run[*]" is set in the host's agent config file.
+        
+        
+        
+        ## Author
+        
+        Dave Humphrey (dave@uesp.net)
+        Further development: Csaba Martha (csy+github@csy.hu)
+      groups:
+        -
+          name: Templates/Applications
+      items:
+        -
+          uuid: adf987b6d3df486db52d4b8148a865c9
+          name: 'Varnish: Service response time'
+          key: 'net.tcp.service.perf[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"]'
+          history: 7d
+          value_type: FLOAT
+          units: s
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 85538643e3c24fbb8b4fdd222f3f44e0
+              expression: 'min(/App Varnish by Zabbix agent/net.tcp.service.perf[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"],5m)={$VARNISH.RESPONSE_TIME.MAX.WARN}'
+              name: 'Varnish: Service response time is too high (over {$VARNISH.RESPONSE_TIME.MAX.WARN}s for 5m)'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                -
+                  name: 'Varnish: Process is not running'
+                  expression: 'last(/App Varnish by Zabbix agent/proc.num["{$VARNISH.PROCESS_NAME}"])=0'
+                -
+                  name: 'Varnish: Service is down'
+                  expression: 'last(/App Varnish by Zabbix agent/net.tcp.service[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"])=0'
+        -
+          uuid: 80295421232547dfba8159e974c236d6
+          name: 'Varnish: Service ping'
+          key: 'net.tcp.service[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"]'
+          history: 7d
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 4c754b657d944992b309c0a92bb01499
+              expression: 'last(/App Varnish by Zabbix agent/net.tcp.service[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"])=0'
+              name: 'Varnish: Service is down'
+              priority: AVERAGE
+              manual_close: 'YES'
+              dependencies:
+                -
+                  name: 'Varnish: Process is not running'
+                  expression: 'last(/App Varnish by Zabbix agent/proc.num["{$VARNISH.PROCESS_NAME}"])=0'
+        -
+          uuid: 8d173a3deb874b1bab51dd698d9358fc
+          name: 'Varnish: CPU utilization'
+          key: 'proc.cpu.util["{$VARNISH.PROCESS_NAME}"]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'Process CPU utilization percentage.'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: fe4a28e44cdb492c8539914af45b39a3
+          name: 'Varnish: Memory usage (rss)'
+          key: 'proc.mem["{$VARNISH.PROCESS_NAME}",,,,rss]'
+          history: 7d
+          units: B
+          description: 'Resident set size memory used by process in bytes.'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 079f500025b840dcb5629e0c92539ddb
+          name: 'Varnish: Memory usage (vsize)'
+          key: 'proc.mem["{$VARNISH.PROCESS_NAME}",,,,vsize]'
+          history: 7d
+          units: B
+          description: 'Virtual memory size used by process in bytes.'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 7db0bf02c0ca419d985a2b11fc1c25f6
+          name: 'Varnish: Number of processes running'
+          key: 'proc.num["{$VARNISH.PROCESS_NAME}"]'
+          history: 7d
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: dc44a80d523f445c819071c9ebf48893
+              expression: 'last(/App Varnish by Zabbix agent/proc.num["{$VARNISH.PROCESS_NAME}"])=0'
+              name: 'Varnish: Process is not running'
+              priority: HIGH
+        -
+          uuid: 05ee653674dd490fa99643d2253241e6
+          name: 'Varnish: Get status'
+          key: 'system.run[varnishstat -j]'
+          history: 1h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: 'Zabbix raw items'
+          triggers:
+            -
+              uuid: 3b1aa70c7b104e2bb557c2db9ffe710b
+              expression: 'nodata(/App Varnish by Zabbix agent/system.run[varnishstat -j],10m)=1'
+              name: 'Varnish: Failed to fetch stats (or no data for 10m)'
+              priority: WARNING
+              description: 'Zabbix has not received data for stats for the last 10m.'
+              manual_close: 'YES'
+              dependencies:
+                -
+                  name: 'Varnish: Process is not running'
+                  expression: 'last(/App Varnish by Zabbix agent/proc.num["{$VARNISH.PROCESS_NAME}"])=0'
+                -
+                  name: 'Varnish: Service is down'
+                  expression: 'last(/App Varnish by Zabbix agent/net.tcp.service[http,"{$VARNISH.STATUS.HOST}","{$VARNISH.STATUS.PORT}"])=0'
+        -
+          uuid: 3d3a55d156d2499d8c6964f5de859ccd
+          name: 'Varnish: Backend busy'
+          type: DEPENDENT
+          key: varnish.backend.busy
+          delay: '0'
+          history: 7d
+          description: 'Backend connection too many'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.backend_busy"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 645d42eafecc4b1a95b5e75ba10d9fc3
+          name: 'Varnish: Backend connections'
+          type: DEPENDENT
+          key: varnish.backend.connections
+          delay: '0'
+          history: 7d
+          description: 'Backend connections succeeded'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.backend_conn"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: e935889f0eaa40a8a3f7589e3136dbc8
+          name: 'Varnish: Backend failed'
+          type: DEPENDENT
+          key: varnish.backend.failed
+          delay: '0'
+          history: 7d
+          description: 'Backend connections failed'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.backend_fail"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: f0c8750857464c609f40cd803849dddb
+          name: 'Varnish: Backend requests'
+          type: DEPENDENT
+          key: varnish.backend.requests
+          delay: '0'
+          history: 7d
+          description: 'Backend requests made'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.backend_conn"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: ffd5566192bd44eeb9d93ebc9d6a2fc4
+          name: 'Varnish: Backend unhealthy'
+          type: DEPENDENT
+          key: varnish.backend.unhealthy
+          delay: '0'
+          history: 7d
+          description: 'Backend connections not attempted'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.backend_unhealthy"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 590c0499a17f4e8082927c21f88f0cb9
+              expression: 'last(/App Varnish by Zabbix agent/varnish.backend.unhealthy,#3)>0'
+              name: 'Varnish: Backend unhealthy'
+              event_name: varnish.backend.unhealthy
+              priority: HIGH
+              description: 'Varnish backend unhealthy'
+        -
+          uuid: 71c678e3febc46e9896e314a3c32b0a5
+          name: 'Varnish: bans'
+          type: DEPENDENT
+          key: varnish.bans
+          delay: '0'
+          history: 7d
+          description: 'Count of bans'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: c754cdf6bc1349debbcbe8f3fed4339c
+          name: 'Varnish: bans added'
+          type: DEPENDENT
+          key: varnish.bans.added
+          delay: '0'
+          history: 7d
+          description: 'Count of bans added'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_added"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: e37ee6d9e5034d11bc49ee2eaf467191
+          name: 'Varnish: bans completed'
+          type: DEPENDENT
+          key: varnish.bans.completed
+          delay: '0'
+          history: 7d
+          description: 'Count of completed bans'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_completed"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: b264ac7cb644435da796298a15883317
+          name: 'Varnish: bans deleted'
+          type: DEPENDENT
+          key: varnish.bans.deleted
+          delay: '0'
+          history: 7d
+          description: 'Count of bans deleted'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_deleted"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 3ce7214df08e48058dcca0aa33bd719b
+          name: 'Varnish: bans obj'
+          type: DEPENDENT
+          key: varnish.bans.obj
+          delay: '0'
+          history: 7d
+          description: 'Number of bans using obj.*'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_obj"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 94c60d33937645c8bd80d6ea721ea452
+          name: 'Varnish: bans req'
+          type: DEPENDENT
+          key: varnish.bans.req
+          delay: '0'
+          history: 7d
+          description: 'Number of bans using req.*'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_req"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 654090a727be4b58a4b4df9cf5aaa33f
+          name: 'Varnish: bans tested'
+          type: DEPENDENT
+          key: varnish.bans.tested
+          delay: '0'
+          history: 7d
+          description: 'Count of bans tested'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.bans_tested"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 75d72c6a11174f91862f72e2b05010d0
+          name: 'Varnish: Bytes per second'
+          type: DEPENDENT
+          key: varnish.bytes.rate
+          delay: '0'
+          history: 7d
+          value_type: FLOAT
+          units: Bps
+          description: 'Calculated as change rate for ''Total bytes'' stat.'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  var values = JSON.parse(value);
+                  var headBytes = values.counters["MAIN.s_resp_hdrbytes"].value;
+                  var bodyBytes = values.counters["MAIN.s_resp_bodybytes"].value;
+                  return headBytes + bodyBytes;
+            -
+              type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: fd089d8419ff4d83a2c3fe7f0172ff5f
+          name: 'Varnish: Cache hit-pass'
+          type: DEPENDENT
+          key: varnish.cache.hitpasses
+          delay: '0'
+          history: 7d
+          description: 'Cache hits for pass'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.cache_hitpass"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: a199ab12103345c4812ecc1472bd6dc4
+          name: 'Varnish: Cache hits'
+          type: DEPENDENT
+          key: varnish.cache.hits
+          delay: '0'
+          history: 7d
+          description: 'Cache hits'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.cache_hit"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 7378704abbc24b05ad203a8e9735cd2c
+          name: 'Varnish: Cache misses'
+          type: DEPENDENT
+          key: varnish.cache.misses
+          delay: '0'
+          history: 7d
+          description: 'Cache misses'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.cache_miss"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 5c3a07dacd4243de890d4e1f669cd705
+          name: 'Varnish: Child panic'
+          type: DEPENDENT
+          key: varnish.child.panic
+          delay: '0'
+          history: 7d
+          description: 'Child process panic'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters[''MGT.child_panic''].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 233b02be274c4ab58bfdc2ef3d3cb715
+              expression: 'last(/App Varnish by Zabbix agent/varnish.child.panic,#1)>0'
+              name: 'Varnish: Child process panic'
+              priority: HIGH
+              description: 'Child process panic'
+        -
+          uuid: b3f88ee5f1c34560b8ee47080ea55617
+          name: 'Varnish: Child start'
+          type: DEPENDENT
+          key: varnish.child.start
+          delay: '0'
+          history: 7d
+          description: 'Child process started'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters[''MGT.child_start''].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 4bf458f277af4234a2971b6aaf8d8280
+          name: 'Varnish: Client requests'
+          type: DEPENDENT
+          key: varnish.client.requests
+          delay: '0'
+          history: 7d
+          description: 'Good client requests received'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.client_req"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: fca4b1afebab4edb91a9e9ac7174fef2
+          name: 'Varnish: Cache hit rate'
+          type: DEPENDENT
+          key: varnish.hitrate
+          delay: '0'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'Average hit rate since the cache was started'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  var values = JSON.parse(value);
+                  var hit = values.counters["MAIN.cache_hit"].value;
+                  var miss = values.counters["MAIN.cache_miss"].value;
+                  var hitpass = values.counters["MAIN.cache_hitpass"].value;
+                  return hit / (hit + miss) * 100;
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 11b2739844e8482fb2d44cd936065977
+          name: 'Varnish: Cache hit rate 5m'
+          type: CALCULATED
+          key: varnish.hitrate5m
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          params: '(last(//varnish.cache.hits) - last(//varnish.cache.hits,#2)) * 100 / ((last(//varnish.cache.misses) - last(//varnish.cache.misses,#2)) + (last(//varnish.cache.hits) - last(//varnish.cache.hits,#2)))'
+          description: 'Average cache hit rate in the past 5m'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: c2ce6d4161854367abd60284784ec3cf
+          name: 'Varnish: gunzip'
+          type: DEPENDENT
+          key: varnish.n_gunzip
+          delay: '0'
+          history: 7d
+          description: 'Count of gunzips'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_gunzip"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 655d15de08504fe98fe24db9c27d09a2
+          name: 'Varnish: gzip'
+          type: DEPENDENT
+          key: varnish.n_gzip
+          delay: '0'
+          history: 7d
+          description: 'Count of gzips'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_gzip"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 17b2cd20f1d3459bb8d0ac9f8916bbcf
+          name: 'Varnish: objects'
+          type: DEPENDENT
+          key: varnish.objects
+          delay: '0'
+          history: 7d
+          description: 'Number of objects'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_object"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 2318e903bafd4f5c9d9bf1159fbc659e
+          name: 'Varnish: Expired objects'
+          type: DEPENDENT
+          key: varnish.objects.expired
+          delay: '0'
+          history: 7d
+          description: 'Number of expired objects'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_expired"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 36837e88b2344e94923f26bc15e4202b
+          name: 'Varnish: LRU nuked objects'
+          type: DEPENDENT
+          key: varnish.objects.lrunuked
+          delay: '0'
+          history: 7d
+          description: 'Number of LRU nuked objects'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_lru_nuked"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: a04a8fd97456427d9b82e9856695ec88
+          name: 'Varnish: Num purges'
+          type: DEPENDENT
+          key: varnish.objects.purges
+          delay: '0'
+          history: 7d
+          description: 'Number of purge operations executed'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.n_purges"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 017f130075e44226ab676b4758445a6c
+          name: 'Varnish: Total request bytes'
+          type: DEPENDENT
+          key: varnish.request.bytes
+          delay: '0'
+          history: 7d
+          units: B
+          description: 'Total bytes received'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  var values = JSON.parse(value);
+                  var headBytes = values.counters["MAIN.s_req_hdrbytes"].value;
+                  var bodyBytes = values.counters["MAIN.s_req_bodybytes"].value;
+                  return headBytes + bodyBytes;
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 8c06df8a87fa46738fc80ab6441cfae1
+          name: 'Varnish: Requests per second'
+          type: DEPENDENT
+          key: varnish.requests.rate
+          delay: '0'
+          history: 7d
+          value_type: FLOAT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.client_req"].value'
+            -
+              type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: f364881a918a4e678816360f61b46d43
+          name: 'Varnish: Total response bytes'
+          type: DEPENDENT
+          key: varnish.response.bytes
+          delay: '0'
+          history: 7d
+          units: B
+          description: 'Total bytes sent'
+          preprocessing:
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  var values = JSON.parse(value);
+                  var headBytes = values.counters["MAIN.s_resp_hdrbytes"].value;
+                  var bodyBytes = values.counters["MAIN.s_resp_bodybytes"].value;
+                  return headBytes + bodyBytes;
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 9e95959f12f74027b5cfaed03429ab23
+          name: 'Varnish: Session accepted'
+          type: DEPENDENT
+          key: varnish.session.conn
+          delay: '0'
+          history: 7d
+          description: 'Sessions accepted'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.sess_conn"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: c876276a1b93421ab8c0a12f80918893
+          name: 'Varnish: Session dropped'
+          type: DEPENDENT
+          key: varnish.session.dropped
+          delay: '0'
+          history: 7d
+          description: 'Sessions dropped'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.sess_dropped"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 95dfa93d9364456e853b24755d63743a
+          name: 'Varnish: Session accept failures too many open files'
+          type: DEPENDENT
+          key: varnish.session.emfile
+          delay: '0'
+          history: 7d
+          description: 'Session accept failures: too many open files'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.sess_fail_emfile"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 9a75f1b85d10455585e064d894aa83c8
+          name: 'Varnish: Session accept failures not enough memory'
+          type: DEPENDENT
+          key: varnish.session.enomem
+          delay: '0'
+          history: 7d
+          description: 'Session accept failures: not enough memory'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.sess_fail_enomem"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 922cdacf9a354a049296b6301448a6be
+              expression: 'last(/App Varnish by Zabbix agent/varnish.session.enomem,#3)>3'
+              name: 'Varnish: Session Accept Failure: Not enough memory'
+              event_name: sess.accept.fail_not.enough.memory
+              priority: HIGH
+              description: 'Session Accept Failure: Not enough memory'
+        -
+          uuid: c29f539eaa254dabb93db223ccabd4ff
+          name: 'Varnish: SHM bytes'
+          type: DEPENDENT
+          key: varnish.shm.bytes
+          delay: '0'
+          history: 7d
+          description: 'SHM bytes'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.shm_bytes"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: b8ae813aae0a46e785fd4ba0d6e34234
+          name: 'Varnish: SHM lock cont'
+          type: DEPENDENT
+          key: varnish.shm.cont
+          delay: '0'
+          history: 7d
+          description: 'SHM lock cont'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.shm_cont"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 3267987ca50a40e8b985997919b38e6e
+          name: 'Varnish: SHM flushes'
+          type: DEPENDENT
+          key: varnish.shm.flushes
+          delay: '0'
+          history: 7d
+          description: 'SHM flushes due to overflow'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.shm_flushes"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: bd8e098f8d2f42aaa7fc901173162b6a
+          name: 'Varnish: SHM records'
+          type: DEPENDENT
+          key: varnish.shm.records
+          delay: '0'
+          history: 7d
+          description: 'SHM records'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.shm_records"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 004e3a3fb3c74d48a53c6b7aff44e644
+          name: 'Varnish: SHM writes'
+          type: DEPENDENT
+          key: varnish.shm.writes
+          delay: '0'
+          history: 7d
+          description: 'SHM writes'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.shm_writes"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: c19774af89184fc58b2a5b0d25daa0ce
+          name: 'Varnish: Threads queue lenght'
+          type: DEPENDENT
+          key: varnish.thread.queue.lenght
+          delay: '0'
+          history: 7d
+          description: 'Length of session queue'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.thread_queue_len"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 4e2d6e891359466ebc8e1a05e705f0bc
+              expression: 'last(/App Varnish by Zabbix agent/varnish.thread.queue.lenght)>0'
+              name: 'Varnish: Length of session queue more than 0'
+              priority: WARNING
+              description: 'Length of session queue more than 0'
+        -
+          uuid: fb2feb9ed69e414ca8c36d5b832ce79a
+          name: 'Varnish: Threads created'
+          type: DEPENDENT
+          key: varnish.threads.created
+          delay: '0'
+          history: 7d
+          description: 'Threads created'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.threads_created"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: d1cd543f448741b59f6963ab4aa3c899
+          name: 'Varnish: Threads destroyed'
+          type: DEPENDENT
+          key: varnish.threads.destroyed
+          delay: '0'
+          history: 7d
+          description: 'Threads destroyed'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.threads_destroyed"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 83e9983fa64648be95e4e275fd582419
+          name: 'Varnish: Threads limited'
+          type: DEPENDENT
+          key: varnish.threads.limited
+          delay: '0'
+          history: 7d
+          description: 'Threads hit max'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters["MAIN.threads_limited"].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+        -
+          uuid: 3cdec39a17bd42fcbc846432bc9d1ed1
+          name: 'Varnish: Uptime'
+          type: DEPENDENT
+          key: varnish.uptime
+          delay: '0'
+          history: 7d
+          units: uptime
+          description: 'Service uptime in seconds'
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - '$.counters[''MGT.uptime''].value'
+          master_item:
+            key: 'system.run[varnishstat -j]'
+          tags:
+            -
+              tag: Application
+              value: Varnish
+          triggers:
+            -
+              uuid: 038c5860369147238731776c5ec18410
+              expression: 'last(/App Varnish by Zabbix agent/varnish.uptime)=10m'
+              name: 'Varnish: Has been restarted (uptime < 10m)'
+              priority: INFO
+              description: 'Uptime is less than 10 minutes'
+              manual_close: 'YES'
+      macros:
+        -
+          macro: '{$VARNISH.PROCESS_NAME}'
+          value: varnishd
+          description: 'Process name of the Varnish server.'
+        -
+          macro: '{$VARNISH.RESPONSE_TIME.MAX.WARN}'
+          value: '5'
+          description: 'Max response time before a warning is given.'
+        -
+          macro: '{$VARNISH.STATUS.HOST}'
+          value: 127.0.0.1
+          description: 'IP or hostname of the Varnish server.'
+        -
+          macro: '{$VARNISH.STATUS.PORT}'
+          value: '80'
+          description: 'Port of the Varnish server.'
+      dashboards:
+        -
+          uuid: e1a64986c3f04e209e2bc2020dd0d45b
+          name: Varnish
+          display_period: '60'
+          pages:
+            -
+              widgets:
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Backend status'
+                  x: '12'
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: Backend
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: Bans
+                  'y': '15'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: Bans
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Bytes per second'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Bytes per second'
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: Cache
+                  'y': '10'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: Cache
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Hit rate'
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Cache hit rate'
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Nr of gzips'
+                  x: '12'
+                  'y': '15'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: Gzip-Gunzip
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Objects / Expired'
+                  x: '12'
+                  'y': '20'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Objects / Expired'
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Request per second'
+                  x: '12'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Request rate'
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: 'Session hits'
+                  'y': '20'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Session hits'
+                        host: 'App Varnish by Zabbix agent'
+                -
+                  type: GRAPH_CLASSIC
+                  name: Threads
+                  x: '12'
+                  'y': '10'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: Threads
+                        host: 'App Varnish by Zabbix agent'
+  graphs:
+    -
+      uuid: aed8879670ea4bf0817317593165fb5c
+      name: Backend
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.backend.requests
+        -
+          sortorder: '2'
+          color: 2774A4
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.backend.connections
+        -
+          sortorder: '3'
+          color: FFBF00
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.backend.busy
+        -
+          sortorder: '4'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.backend.failed
+    -
+      uuid: ec745f10cffb45c48fdf489f7a7bd1fd
+      name: Bans
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans
+        -
+          sortorder: '2'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.added
+        -
+          sortorder: '3'
+          color: 2774A4
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.completed
+        -
+          sortorder: '4'
+          color: F7941D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.deleted
+        -
+          sortorder: '5'
+          color: C7A72D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.tested
+        -
+          sortorder: '6'
+          color: FC6EA3
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.obj
+        -
+          sortorder: '7'
+          color: 6C59DC
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bans.req
+    -
+      uuid: 8a1be3b1d27d44408f2c6cff7db6bdf2
+      name: 'Bytes per second'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 00FF00
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.bytes.rate
+    -
+      uuid: 27c7c13443a64db4864b7ebb27ef438f
+      name: Cache
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.cache.hits
+        -
+          sortorder: '2'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.cache.misses
+    -
+      uuid: ef40fb5ce9344c04b91e96d7d547ac84
+      name: 'Cache hit rate'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.hitrate
+        -
+          sortorder: '1'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.hitrate5m
+    -
+      uuid: f9bb890598cb4b5281da3ba9221e9af7
+      name: Gzip-Gunzip
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.n_gzip
+        -
+          sortorder: '2'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.n_gunzip
+    -
+      uuid: 8eb10e34012b49c2944190a0f116a7f0
+      name: 'Objects / Expired'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.objects
+        -
+          sortorder: '2'
+          color: F63100
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.objects.expired
+    -
+      uuid: 73f2cd95eb664725a42051d495a5dadf
+      name: 'Request rate'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.requests.rate
+    -
+      uuid: 896a163cadea4568a1f7c81f09eb4bd8
+      name: 'Session hits'
+      graph_items:
+        -
+          sortorder: '1'
+          color: 0080FF
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.session.conn
+        -
+          sortorder: '2'
+          color: 00FF00
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.cache.hits
+        -
+          sortorder: '3'
+          color: FF4000
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.cache.misses
+    -
+      uuid: 3442570611ec45439d563bd0b4172d5b
+      name: Threads
+      graph_items:
+        -
+          sortorder: '1'
+          color: 199C0D
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.threads.created
+        -
+          sortorder: '2'
+          color: FFFF00
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.threads.destroyed
+        -
+          sortorder: '3'
+          color: FF0000
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.shm.records
+        -
+          sortorder: '4'
+          color: 0080FF
+          item:
+            host: 'App Varnish by Zabbix agent'
+            key: varnish.threads.limited
